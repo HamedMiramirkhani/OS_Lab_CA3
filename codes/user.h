@@ -23,6 +23,8 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+void set_proc_queue(int, int);
+void set_lottery_params(int, int);
 
 // ulib.c
 int stat(const char*, struct stat*);

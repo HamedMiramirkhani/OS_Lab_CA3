@@ -89,3 +89,21 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+void
+sys_set_proc_queue(void)
+{
+  int pid, queue;
+  argint(0, &pid);
+  argint(1, &queue);
+  set_proc_queue(pid, queue);
+}
+
+void
+sys_set_lottery_params(void)
+{
+  int pid, ticket_chance;
+  argint(0, &pid);
+  argint(1, &ticket_chance);
+  set_lottery_params(pid, ticket_chance);
+}

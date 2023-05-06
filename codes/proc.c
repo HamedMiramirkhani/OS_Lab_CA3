@@ -611,6 +611,20 @@ procdump(void)
 }
 
 void
+set_proc_queue(int pid, int queue)
+{
+  struct proc *p;
+
+  acquire(&ptable.lock);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  {
+    if (p->pid == pid)
+      p->queue = queue;
+  }
+  release(&ptable.lock);
+}
+
+void
 set_lottery_params(int pid, int ticket_chance){
   struct proc *p;
 
