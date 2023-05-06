@@ -20,6 +20,21 @@ extern void trapret(void);
 
 static void wakeup1(void *chan);
 
+int
+generate_random_num(int min, int max)
+{
+    if (min >= max)
+        return max > 0 ? max : -1 * max;
+    acquire(&tickslock);
+    int diff = max - min + 1, time = ticks;
+    release(&tickslock);
+    int rand_num = (1 + (1 + ((time + 2) % diff ) * \
+    (time + 1) * 132) % diff) * (1 + time % max) * \
+    (1 + 2 * max % diff);
+    rand_num = rand_num % diff + min;
+    return rand_num;
+}
+
 void
 pinit(void)
 {
@@ -111,6 +126,10 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
+
+  p->entered_queue = ticks;
+  p->queue = 2;
+  p->tickets = generate_random_num(1, DEFAULT_MAX_TICKETS);
 
   return p;
 }
@@ -311,6 +330,59 @@ wait(void)
   }
 }
 
+void
+fix_queues(void) {
+  struct proc *p;
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+      if (p->state == RUNNABLE)
+          if (ticks - p->entered_queue >= STARVING_THRESHOLD) {
+              p->queue = 1;
+              p->entered_queue = ticks;
+          }
+  }
+}
+
+struct proc* 
+round_robin(void) { 
+  // for queue 1 with the highest priority
+  struct proc *p;
+  struct proc *min_p = 0;
+  int time = ticks;
+  int starvation_time = 0;
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+      if (p->state != RUNNABLE || p->queue != 1)
+          continue;
+      if (p->state != RUNNABLE || p->queue != 1)
+          continue;
+      int starved_for = time - p->entered_queue;
+      if (starved_for > starvation_time) {
+          starvation_time = starved_for;
+          min_p = p;
+      }
+  }
+  return min_p;
+}
+
+struct proc* lottery(void) { 
+  // for queue #2 and entrance queue
+  struct proc *p;
+  int total_tickets = 0;
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+      if (p->state != RUNNABLE || p->queue != 2)
+          continue;
+      total_tickets += p->tickets;
+  }
+  int winning_ticket = generate_random_num(1, total_tickets);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+      if (p->state != RUNNABLE || p->queue != 2)
+          continue;
+      winning_ticket -= p->tickets;
+      if (winning_ticket <= 0)
+          return p;
+  }
+  return 0;
+}
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -320,39 +392,44 @@ wait(void)
 //  - eventually that process transfers control
 //      via swtch back to the scheduler.
 void
-scheduler(void)
-{
-  struct proc *p;
-  struct cpu *c = mycpu();
-  c->proc = 0;
-  
-  for(;;){
-    // Enable interrupts on this processor.
-    sti();
+scheduler(void) {
+    struct proc *p;
+    struct cpu *c = mycpu();
+    c->proc = 0;
 
-    // Loop over process table looking for process to run.
-    acquire(&ptable.lock);
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
+    for (;;) {
+        // Enable interrupts on this processor.
+        sti();
 
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-      c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
+        // Loop over process table looking for process to run.
+        acquire(&ptable.lock);
+        fix_queues();
+        p = round_robin();
+        if (p == 0)
+            p = lottery();
+        if (p == 0)
+            p = fcfs();
+        if (p == 0) {
+            release(&ptable.lock);
+            continue;
+        }
+        p->entered_queue = ticks;
 
-      swtch(&(c->scheduler), p->context);
-      switchkvm();
+        // Switch to chosen process.  It is the process's job
+        // to release ptable.lock and then reacquire it
+        // before jumping back to us.
+        c->proc = p;
+        switchuvm(p);
+        p->state = RUNNING;
 
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
-      c->proc = 0;
+        swtch(&(c->scheduler), p->context);
+        switchkvm();
+
+        // Process is done running for now.
+        // It should have changed its p->state before coming back.
+        c->proc = 0;
+        release(&ptable.lock);
     }
-    release(&ptable.lock);
-
-  }
 }
 
 // Enter scheduler.  Must hold only ptable.lock
@@ -531,4 +608,17 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+void
+set_lottery_params(int pid, int ticket_chance){
+  struct proc *p;
+
+  acquire(&ptable.lock);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  {
+    if (p->pid == pid)
+      p->tickets = ticket_chance;
+  }
+  release(&ptable.lock); 
 }
