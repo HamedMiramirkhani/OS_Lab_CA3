@@ -131,6 +131,11 @@ found:
   p->queue = 2;
   p->tickets = generate_random_num(1, DEFAULT_MAX_TICKETS);
 
+  acquire(&tickslock);
+  p->arrival_time = ticks;
+  release(&tickslock);
+
+
   return p;
 }
 
@@ -203,6 +208,9 @@ fork(void)
   struct proc *np;
   struct proc *curproc = myproc();
 
+  //save arrival time 
+  //curproc->arrival_time = ticks; 
+  
   // Allocate process.
   if((np = allocproc()) == 0){
     return -1;
@@ -363,7 +371,8 @@ round_robin(void) {
   return min_p;
 }
 
-struct proc* lottery(void) { 
+struct proc* 
+lottery(void) { 
   // for queue #2 and entrance queue
   struct proc *p;
   int total_tickets = 0;
@@ -383,6 +392,24 @@ struct proc* lottery(void) {
   return 0;
 }
 
+struct proc* 
+fcfs(void) { 
+  struct proc *p;
+  struct proc *first;
+  int min_arrival_time;
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p->state != RUNNABLE || p->queue != 2) {
+          continue;
+    }
+    if (p->arrival_time < min_arrival_time) {
+      min_arrival_time = p->arrival_time;
+      first = p;
+    }
+    
+  }
+  return p;
+
+}
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.

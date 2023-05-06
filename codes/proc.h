@@ -51,9 +51,11 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  
   int queue;                   // queue number
   int entered_queue;           // time entered queue
   int tickets;                 // number of lottery tickets
+  uint arrival_time;           // for fcfs
 
 };
 
