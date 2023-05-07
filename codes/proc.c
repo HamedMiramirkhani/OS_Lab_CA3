@@ -394,21 +394,24 @@ lottery(void) {
 
 struct proc* 
 fcfs(void) { 
-  struct proc *p;
-  struct proc *first;
-  int min_arrival_time;
+  struct proc *p = ptable.proc;
+  
+  struct proc *first_p = p;
+  int min_arrival_time = 2e9;
+  int flag = 0;
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
     if (p->state != RUNNABLE || p->queue != 2) {
           continue;
     }
-    if (p->arrival_time < min_arrival_time) {
+    if (p->arrival_time <= min_arrival_time) {
+      flag = 1;
       min_arrival_time = p->arrival_time;
-      first = p;
+      first_p = p;
     }
-    
   }
-  return p;
-
+  if (flag == 1)
+    return first_p;
+  return 0;
 }
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
