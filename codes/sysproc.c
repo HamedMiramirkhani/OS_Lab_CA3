@@ -107,3 +107,8 @@ sys_set_lottery_params(void)
   argint(1, &ticket_chance);
   set_lottery_params(pid, ticket_chance);
 }
+void
+sys_print_process_info(void)
+{
+  print_process_info();
+}

@@ -184,7 +184,7 @@ UPROGS=\
 	_set_lottery_params\
 	_set_proc_queue\
 	_foo\
-
+	
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
 

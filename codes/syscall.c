@@ -105,6 +105,7 @@ extern int sys_write(void);
 extern int sys_uptime(void);
 extern int sys_set_proc_queue(void);
 extern int sys_set_lottery_params(void);
+extern int sys_print_process_info(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -130,6 +131,7 @@ static int (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 [SYS_set_proc_queue]      sys_set_proc_queue,
 [SYS_set_lottery_params]  sys_set_lottery_params,
+[SYS_print_process_info]  sys_print_process_info,
 };
 
 void

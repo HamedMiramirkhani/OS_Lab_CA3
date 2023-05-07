@@ -25,6 +25,7 @@ int sleep(int);
 int uptime(void);
 void set_proc_queue(int, int);
 void set_lottery_params(int, int);
+void print_process_info(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

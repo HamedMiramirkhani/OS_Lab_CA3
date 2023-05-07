@@ -675,7 +675,7 @@ void printspaces(int space_count)
   }
 }
 
-int log(int n)
+int log_10(int n)
 {
   int count = 0;
   while(n>0)
@@ -721,16 +721,16 @@ print_process_info()
     }
     cprintf("%s", p->name);
     printspaces(columns[0] - strlen(p->name));
-    cprintf("%s", p->pid);
-    printspaces(columns[1] - (log(p->pid)));
+    cprintf("%d", p->pid);
+    printspaces(columns[1] - (log_10(p->pid)));
     cprintf("%s", state);
     printspaces(columns[2] - strlen(state));
-    cprintf("%s", p->queue);
-    printspaces(columns[3] - (log(p->queue)));
-    cprintf("%s", p->arrival_time);
-    printspaces(columns[4] - (log(p->arrival_time)));
-    cprintf("%s", p->tickets);
-    printspaces(columns[5] - (log(p->tickets)));
+    cprintf("%d", p->queue);
+    printspaces(columns[3] - (log_10(p->queue)));
+    cprintf("%d", p->arrival_time);
+    printspaces(columns[4] - (log_10(p->arrival_time)));
+    cprintf("%d", p->tickets);
+    printspaces(columns[5] - (log_10(p->tickets)));
     cprintf("\n");
   }
 }
