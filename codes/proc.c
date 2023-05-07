@@ -663,3 +663,71 @@ set_lottery_params(int pid, int ticket_chance){
   }
   release(&ptable.lock); 
 }
+
+void printspaces(int space_count)
+{
+  for(int i = 0; i< space_count; i++)
+  {
+    cprintf(" ");
+  }
+}
+
+int log(int n)
+{
+  int count = 0;
+  while(n>0)
+  {
+    n = n/10;
+    count ++;
+  }
+  return count;
+}
+
+void
+print_process_info()
+{
+  static char *states[] = {
+    [UNUSED] "unused",
+    [EMBRYO] "embryo",
+    [SLEEPING] "sleeping",
+    [RUNNABLE] "runnable",
+    [RUNNING] "running",
+    [ZOMBIE] "zombie"
+  };
+
+  static int columns[] = {16, 8, 9, 8, 8, 8};
+  cprintf("Process_Name     PID    State    Queue   Arrival   Ticket  \n"
+    "--------------------------------------------------------------------\n");
+
+  struct proc *p;
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    {
+      if(p->state  == UNUSED)
+      {
+        continue;
+      }
+    
+    const char* state;
+    if(p->state >= 0 && p->state < NELEM(states)  && states[p->state])
+    {
+      state = states[p->state];
+    }
+    else
+    {
+      state = "???";
+    }
+    cprintf("%s", p->name);
+    printspaces(columns[0] - strlen(p->name));
+    cprintf("%s", p->pid);
+    printspaces(columns[1] - (log(p->pid)));
+    cprintf("%s", state);
+    printspaces(columns[2] - strlen(state));
+    cprintf("%s", p->queue);
+    printspaces(columns[3] - (log(p->queue)));
+    cprintf("%s", p->arrival_time);
+    printspaces(columns[4] - (log(p->arrival_time)));
+    cprintf("%s", p->tickets);
+    printspaces(columns[5] - (log(p->tickets)));
+    cprintf("\n");
+  }
+}
