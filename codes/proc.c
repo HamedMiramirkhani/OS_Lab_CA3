@@ -129,6 +129,7 @@ found:
 
   p->entered_queue = ticks;
   p->queue = 2;
+  
   p->tickets = generate_random_num(1, DEFAULT_MAX_TICKETS);
 
   acquire(&tickslock);
@@ -339,10 +340,10 @@ wait(void)
 }
 
 void
-fix_queues(void) {
+update_queues(void) {
   struct proc *p;
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-      if (p->state == RUNNABLE)
+      // if (p->state == RUNNABLE)
           if (ticks - p->entered_queue >= STARVING_THRESHOLD) {
               p->queue = 1;
               p->entered_queue = ticks;
@@ -434,7 +435,7 @@ scheduler(void) {
 
         // Loop over process table looking for process to run.
         acquire(&ptable.lock);
-        fix_queues();
+        update_queues();
         p = round_robin();
         if (p == 0)
             p = lottery();
