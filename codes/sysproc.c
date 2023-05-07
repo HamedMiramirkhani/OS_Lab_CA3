@@ -108,7 +108,7 @@ sys_set_lottery_params(void)
   set_lottery_params(pid, ticket_chance);
 }
 void
-sys_print_process_info(void)
+sys_print_all_procs(void)
 {
-  print_process_info();
+  print_all_procs();
 }

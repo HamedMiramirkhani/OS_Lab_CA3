@@ -22,4 +22,4 @@
 #define SYS_close  21
 #define SYS_set_proc_queue       22
 #define SYS_set_lottery_params   23
-#define SYS_print_process_info 24
+#define SYS_print_all_procs 24

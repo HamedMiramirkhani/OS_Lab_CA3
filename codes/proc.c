@@ -350,25 +350,26 @@ fix_queues(void) {
   }
 }
 
-struct proc* 
-round_robin(void) { 
+struct proc* round_robin(void) { 
   // for queue 1 with the highest priority
-  struct proc *p;
-  struct proc *min_p = 0;
-  int time = ticks;
-  int starvation_time = 0;
-  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-      if (p->state != RUNNABLE || p->queue != 1)
-          continue;
-      if (p->state != RUNNABLE || p->queue != 1)
-          continue;
-      int starved_for = time - p->entered_queue;
-      if (starved_for > starvation_time) {
-          starvation_time = starved_for;
-          min_p = p;
-      }
-  }
-  return min_p;
+    struct proc *p;
+    struct proc *min_p = 0;
+    int time = ticks;
+    int starvation_time = 0;
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->state != RUNNABLE || p->queue != 1)
+            continue;
+            
+        if (p->state != RUNNABLE || p->queue != 1)
+            continue;
+
+        int starved_for = time - p->entered_queue;
+        if (starved_for > starvation_time) {
+            starvation_time = starved_for;
+            min_p = p;
+        }
+    }
+    return min_p;
 }
 
 struct proc* 
@@ -687,7 +688,7 @@ int log_10(int n)
 }
 
 void
-print_process_info()
+print_all_procs()
 {
   static char *states[] = {
     [UNUSED] "unused",

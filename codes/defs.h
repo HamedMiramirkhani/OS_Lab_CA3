@@ -122,7 +122,7 @@ void            wakeup(void*);
 void            yield(void);
 void            set_proc_queue(int, int);
 void			set_lottery_params(int, int);
-void            print_process_info(void);
+void            print_all_procs(void);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

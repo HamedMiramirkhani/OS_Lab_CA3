@@ -184,6 +184,7 @@ UPROGS=\
 	_set_lottery_params\
 	_set_proc_queue\
 	_foo\
+	_print_procs\
 	
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -253,7 +254,7 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 EXTRA=\
 	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
 	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
-	printf.c umalloc.c foo.c\
+	printf.c umalloc.c foo.c print_procs.c\
 	set_lottery_params.c set_proc_queue.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\
